@@ -1,3 +1,4 @@
+from .map import Map
 from .bandpass import Bandpass
 from .clip import Clip
 from .clip_percentile_to_zero import ClipPercentileToZero
