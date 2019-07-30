@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 import pprint
 
 from starfish import data, FieldOfView
+from starfish.image import Filter
 from starfish.types import Features, Axes
 from starfish.util.plot import imshow_plane
 # EPY: END code
@@ -80,6 +81,12 @@ single_plane = imgs.sel(sel)
 imshow_plane(single_plane, title="Round: 0, Channel: 0")
 # EPY: END code
 
+# EPY: START code
+# We use a handful of max projections.  Initialize them.
+rcz_max_projection = Filter.MaxProject(dims={Axes.ROUND, Axes.CH, Axes.ZPLANE})
+cz_max_projection = Filter.MaxProject(dims={Axes.CH, Axes.ZPLANE})
+# EPY: END code
+
 # EPY: START markdown
 #'dots' is a general stain for all possible transcripts. This image should correspond to the maximum projcection of all color channels within a single imaging round. This auxiliary image is useful for registering images from multiple imaging rounds to this reference image. We'll see an example of this further on in the notebook
 # EPY: END markdown
@@ -114,8 +121,6 @@ imshow_plane(nuclei_single_plane, title="Nuclei (DAPI) channel")
 # EPY: END markdown
 
 # EPY: START code
-from starfish.image import Filter
-
 # filter raw data
 masking_radius = 15
 filt = Filter.WhiteTophat(masking_radius, is_volume=False)
@@ -152,6 +157,7 @@ imshow_plane(
 # EPY: START code
 from starfish.image import ApplyTransform, LearnTransform
 
+per_round_max_projected = cz_max_projection.run(imgs)
 learn_translation = LearnTransform.Translation(reference_stack=dots, axes=Axes.ROUND, upsampling=1000)
 transforms_list = learn_translation.run(per_round_max_projector.run(imgs))
 warp = ApplyTransform.Warp()
